@@ -26,7 +26,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: redis:alpine
+        image: 730543776416.dkr.ecr.us-east-1.amazonaws.com/redis-cart
         ports:
         - containerPort: 6379
         readinessProbe:
