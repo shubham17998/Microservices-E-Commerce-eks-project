@@ -35,17 +35,23 @@ pipeline {
             }
         }
 
-        stage("ECR Image Pushing") {
-            steps {
-                script {
-                    sh '''
-                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 242201296943.dkr.ecr.us-east-1.amazonaws.com
-                    docker tag adservice:latest 242201296943.dkr.ecr.us-east-1.amazonaws.com/adservice:${BUILD_NUMBER}
-                    docker push 242201296943.dkr.ecr.us-east-1.amazonaws.com/adservice:${BUILD_NUMBER}
-                    '''
-                }
-            }
+        stage("DockerHub Image Pushing") {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-creds',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+        )]) {
+            sh '''
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+            
+            docker tag adservice:latest $DOCKER_USER/adservice:${BUILD_NUMBER}
+            
+            docker push $DOCKER_USER/adservice:${BUILD_NUMBER}
+            '''
         }
+    }
+}
 
         stage('Update Deployment file') {
             steps {
